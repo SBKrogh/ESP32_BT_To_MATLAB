@@ -282,7 +282,7 @@ clc
 clear counter package; 
 
 PackageSize = 24;   % IMU
-TestTime = 15;      % Minutes
+TestTime = 1;      % Minutes
 fHz = 1000;         % Sample frequency
 ArraySize = PackageSize * TestTime*60 * fHz % Specify size of Array for alocation 
 PrintTime = 0;
@@ -308,7 +308,6 @@ counter = 1;
 TimeCounter = 1;
 
 BufferTest = zeros(ArraySize,1);
-time1 = zeros(ArraySize,1);
 
 tic 
 package(1:PackageSize) = fread(b,PackageSize); % First data package received 
@@ -345,7 +344,7 @@ while(1)
     break;
   end
   
-  if toc > (TestTime * 60) % Stops program if time is exceded 
+  if toc > (TestTime * 60) + 20 % Stops program if time is exceded 
       SendTask(b,'Stop');
       pause(0.5)
       disp('Run time over');
@@ -366,6 +365,7 @@ while(1)
 end
 
 fclose(b); 
-plot(BufferSize(1:PackagesReceived))
+
+plot(time1)
 mean(BufferSize)
 length(package)/24 - 1
