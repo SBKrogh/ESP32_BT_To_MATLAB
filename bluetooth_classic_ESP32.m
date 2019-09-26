@@ -276,13 +276,13 @@ length(package)/24 - 1
 
 
 %% Receive and stop test ( Nmb of bytes in the buffer reading)
-% This solution is too slow ? 
+% "Works"
 clc
 
 clear counter package; 
 
 PackageSize = 24;   % IMU
-TestTime = 15;      % Minutes
+TestTime = 0.5;      % Minutes
 fHz = 1000;         % Sample frequency
 ArraySize = PackageSize * TestTime*60 * fHz % Specify size of Array for alocation 
 PrintTime = 0;
@@ -366,6 +366,11 @@ while(1)
 end
 
 fclose(b); 
-plot(BufferSize(1:PackagesReceived))
-mean(BufferSize)
+plot(BufferTest(1:TimeCounter))
+title('Buffer usage over time')
+mean(BufferTest(1:TimeCounter))
+figure 
+plot(time1(1:TimeCounter))
+title('Time used to read buffer')
 length(package)/24 - 1
+package = package(1:PackagesReceived);
