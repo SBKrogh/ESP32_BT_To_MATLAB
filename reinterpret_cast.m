@@ -1,4 +1,7 @@
 % Reinterprete four uint8 bytes IMU data to float
+% Input array should only contain full packages ie. length(IMU_Array)/24 = int 
+% See example in FormatRawIMU_Data.m
+
 function y = reinterpret_cast(IMU_Array)
 
 ArraySize = length(IMU_Array);
