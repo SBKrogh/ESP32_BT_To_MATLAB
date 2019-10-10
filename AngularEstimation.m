@@ -7,7 +7,12 @@
 % Return: AngleUp -> The angle between the vector of reference (the axsis
 % perpendicular to ground) 
 % Return: AngleLow -> The angle between the two IMUs 
-
+%
+% Promising Algorithems: 
+% IMU-Based Joint Angle Measurement for Gait Analysis
+% https://www.researchgate.net/publication/261756955_IMU-Based_Joint_Angle_Measurement_for_Gait_Analysis
+% Alignment-Free, Self-Calibrating Elbow Angles Measurement Using Inertial Sensors
+% https://ieeexplore.ieee.org/stamp/stamp.jsp?tp=&arnumber=7782745
 function [AngleUp, AngleLow] = AngularEstimation(IMU_Up_Acceleration, IMU_Low_Acceleration)
 
 ArraySize = length(IMU_Up_Acceleration);    % Used for allocation of memory

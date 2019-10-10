@@ -9,13 +9,13 @@ else
 end
 
 try
-    b = Bluetooth('Exo-Aider ESP32',channel);
+    b = Bluetooth('Exo-Aider ESP32',channel,'Timeout',3);
     fopen(b);
 catch me
     fprintf(['Initial channel selected did not work\n',...
         'Brute Force channel selection initiated\n',...
         'This might take a while\n\n']);
-    b = BruteForceChannelSelectionBT(channel);
+    b = BruteForceChannelSelectionBT();
 end
 channel = b.Channel;
 save('PreviousChannelSelected.mat', 'channel');

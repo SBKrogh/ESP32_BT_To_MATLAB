@@ -1,0 +1,13 @@
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+IMU: Other improved angular estimation methoeds 
+
+IMU-Based Joint Angle Measurement for Gait Analysis
+https://www.researchgate.net/publication/261756955_IMU-Based_Joint_Angle_Measurement_for_Gait_Analysis
+
+Alignment-Free, Self-Calibrating Elbow Angles Measurement Using Inertial Sensors
+https://ieeexplore.ieee.org/stamp/stamp.jsp?tp=&arnumber=7782745
+
+For additional research 
+Quarternion based angular estimation seems not to exist
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
