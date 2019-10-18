@@ -18,10 +18,10 @@ b = EstablishConnectionBT();
 FSR = 16;                           % Bytes
 IMU = 48;                           % Bytes -> Accleration only
 EMG = 8;                            % Bytes
-All = FSR + IMU  + EMG;             % Bytes
+All = FSR + IMU + EMG;             % Bytes
 
 TaskAvailable = table(FSR,IMU,EMG,All);
-clear FSR IMU EMG All
+% clear FSR IMU EMG All
 
 %% Specify task - input by user Keyboard
 % prompt = 'Specify task of interest\nFSR, IMU, EMG or All\n';
@@ -46,20 +46,18 @@ TaskInput = 'IMU';             % Erase this when done testing!!!!!!!!
 Task = TaskAvailable(:,'IMU'); % Erase this when done testing!!!!!!!!
 
 PackageSize = TaskAvailable.(TaskInput);     % Task package size - bytes
-TestTime = 0.5*60;                           % Test time in seconds 
+TestTime = 15*60;                            % Test time in seconds 
 fHz = 1000;                                  % Sample frequency
-ArraySize = PackageSize * TestTime*60 * fHz; % Specify memory alocation
+ArraySize = PackageSize * TestTime * fHz; % Specify memory alocation
 BufferSizeSaftyMargin = 0;                   % Increase this if additional buffermargin is necessary
 
-
 package = zeros(ArraySize, 1); % Allocate memory for raw BT data
-Data = getMatrix(Task);         % Return inital table for storing reinterpreted data
+[Data, VarName] = getMatrix(Task);         % Return inital buffer for storing reinterpreted data and column names
 DataRow = length(Data);
-
 
 if strcmp(b.Status,'open') % Used to close the BT communication.
     fclose(b);             % Usefull when ESP32 is restarting and
-    flushinput(b)          % communication should be established.
+    flushinput(b)          % communication should be re-established.
 end
 flushinput(b)
 
@@ -70,19 +68,24 @@ ButtonHandle = uicontrol('Style', 'PushButton', ...  % Stop button
 TimeCounter = 1;                 % Counter for buffer readings
 BufferTest = zeros(ArraySize,1); % Used to store buffer size usage
 
-PrintTime = 0;
 
 fopen(b);                                         % Enable BT communcation
 SendTask(b, char(Task.Properties.VariableNames)); % Initiate the IMU data collection
 package(1:PackageSize) = fread(b,PackageSize);    % First data package received
-% package = fread(b,PackageSize);    % First data package received
 PackagesReceived = PackageSize;                   % Byte received counter
 DataTrack = 1;                                    % Keep track of reinterpreted data stored
 
-FormattedToo = 0;       % How much data is formatted
-ii = 1;
+FormattedToo = 0;       % How much data is reinterpreted
 avgTime = zeros(500,4);
 k = 1;
+
+print200 = 200;
+time = 0; ydata = 0;
+DataPlot = plot(time,ydata,'-r');
+PlotCount = 1;
+PlotArray = zeros(1,2000);
+PlotArray2 = PlotArray;
+
 while(1)
     tic
     BufferSize = b.BytesAvailable;    % Check if data in buffer is available
@@ -93,7 +96,6 @@ while(1)
         fprintf('packagebuffer reallocated to %i\n', ArraySize)
     end
     avgTime(k,1) = toc;
-    
     
     if BufferSize > 0 % Check if bytes are received
         package(PackagesReceived + 1: PackagesReceived + BufferSize) = fread(b,BufferSize); % Store data in allocated memory
@@ -117,73 +119,63 @@ while(1)
     
     avgTime(k,3) = toc;
 
-%    % Comment this statement out for continues run time
-%     if toc > (TestTime)        % Stops program if time is exceded
-%         SendTask(b,'Stop');
-%         pause(0.5)             % Wait for ESP32 output buffer to be emptied
-%         disp('Run time over');
-%         BufferSize = b.BytesAvailable;
-%         if BufferSize > 0
-%             package(PackagesReceived + 1: PackagesReceived + BufferSize) = fread(b,BufferSize); % Read Matlab input buffer
-%         end
-%         PackagesReceived = PackagesReceived + BufferSize;   % Increase byte received counter.
-%         break;
-%     end
-%     
-%     if PrintTime + 10 < toc % Display time usage
-%         toc
-%         PrintTime = toc;
-%     end
-    
     if FormattedToo + PackageSize  <= PackagesReceived
         
         DiffPackage = PackagesReceived - FormattedToo;        % Difference in data received and data formatted
         NewPackagesReceived = floor(DiffPackage/PackageSize); % Full packages received 
         DataToFormat = package(FormattedToo + 1:FormattedToo + NewPackagesReceived*PackageSize); % Seperate new full data package(s)
         
-        
-        
-        Formatted = FormatData(Task.Properties.VariableNames, DataToFormat);
+        Formatted = FormatData(Task.Properties.VariableNames, DataToFormat); % Reinterpreted raw BT data
         [n m] = size(Formatted);
         
-        
-        
-        if DataRow < DataTrack + n - 1
-            Hold = 1
-            Data = [Data; getMatrix(Task)];
+        % Check if reinterpreted buffersize is exceeded
+        if DataRow < DataTrack + n - 1      
+            Data = [Data; getMatrix(Task)]; % Reallocate new buffer size
             DataSize = length(Data);
             DataRow = DataSize;
             fprintf('Databuffer reallocated to %i\n', DataSize)
         end
-        
-        
-        
-        Data(DataTrack:DataTrack + n - 1, :) = Formatted;
-        
-        
-        
-        FormattedToo = FormattedToo + NewPackagesReceived*PackageSize;
-        DataTrack = DataTrack + n;
-        
-        
-        k  = k + 1;
-    end
 
-    avgTime(k,4) = toc;
+        Data(DataTrack:DataTrack + n - 1, :) = Formatted;               % Store reinterpreted data
+        FormattedToo = FormattedToo + NewPackagesReceived*PackageSize;  % Raw data pointer 
+        DataTrack = DataTrack + n;                                      % Reinterpreted data pointer
         
+        avgTime(k,4) = toc;   
+        %k  = k + 1;
+    end
+    
+     
     pause(0.0000001); % Necessary to handle stop button...
-    
-    
-    
+
     if k > 500
-       mean(avgTime)
+       diff([0 mean(avgTime)])
        k = 1;
     end
+
     
-    
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Include "Near Real Time" functionalities here 
+
+if DataTrack - 1 > print200
+   set(DataPlot,'XData',PlotCount:DataTrack - 1,'YData',Data(PlotCount:DataTrack - 1,VarName.AccX1));
+   xticks([]);
+   xticklabels({});
+   hold on;
+   drawnow
+   %PlotCount = DataTrack - 1;
+   axis([DataTrack-2000 DataTrack -10 10])
+end
+
 end
 
 fclose(b);
+
+%% Clean and store data in TimeTable
+Data = CleanUpData(Data); % Remove zero rows 
+DataTable = getTable(Task,Data);
+
+%% Plot
+
 plot(BufferTest(1:TimeCounter))
 title('Buffer usage over time')
 % figure

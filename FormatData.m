@@ -1,3 +1,4 @@
+%% Return reinterpreted raw BT data
 function [FormattedData] = FormatData(TaskName, DataToFormat)
 
 %% IMU

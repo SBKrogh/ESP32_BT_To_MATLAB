@@ -3,7 +3,7 @@ function [b] = EstablishConnectionBT()
 delete(instrfind)
 
 if isfile('PreviousChannelSelected.mat')
-    load('PreviousChannelSelected.mat')
+    load('PreviousChannelSelected.mat');
 else
     channel = 1;
 end

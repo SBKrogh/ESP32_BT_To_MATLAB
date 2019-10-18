@@ -1,6 +1,8 @@
-function [returnMatrix] = getMatrix(Task)
+%% Returns the initial preallocated DataBuffer - 15 minuts of storage
+% and a table containing the variable names of the different columns.
+function [returnMatrix, returnColumnName] = getMatrix(Task)
 
-Row = 1000000; % Each row corrosponds to 1 ms 
+Row = 15*60*1000; % Each row corrosponds to 1 ms 
 
 %% IMU
 if strcmp(Task.Properties.VariableNames,'IMU')
@@ -26,6 +28,6 @@ if strcmp(Task.Properties.VariableNames,'All')
 end
 
 %% Return table 
-
 SizeOfData = [Row Column];
 returnMatrix = zeros(SizeOfData);
+returnColumnName = getTable(Task,1:Column)

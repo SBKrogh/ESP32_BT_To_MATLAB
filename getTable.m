@@ -1,6 +1,7 @@
-function [returnTable] = getTable(Task)
+function [returnTable] = getTable(Task, Data)
 
-Row = 1000000; % Each row corrosponds to 1 ms 
+% Row = 1000000; % Each row corrosponds to 1 ms 
+[Row, m] = size(Data); 
 SampleRate = 1000; % Hz
 
 %%
@@ -45,11 +46,18 @@ if strcmp(Task.Properties.VariableNames,'All')
     Column = length(NameOfVariables);
 end
 
-%% Return table 
-
+%% Return Table or TimeTable 
 SizeOfData = [Row Column];
-returnTable = timetable('Size', SizeOfData,...
+
+if Row > 1;
+    returnTable = timetable('Size', SizeOfData,...
+                            'VariableTypes', varTypes,...
+                            'SampleRate', SampleRate,...
+                            'VariableNames', NameOfVariables);
+elseif Row == 1
+    returnTable = table('Size', SizeOfData,...
                         'VariableTypes', varTypes,...
-                        'SampleRate', SampleRate,...
                         'VariableNames', NameOfVariables);
+end
+returnTable{1:Row,:} = Data;
                     
