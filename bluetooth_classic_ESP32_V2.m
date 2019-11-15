@@ -157,7 +157,7 @@ while(1)
 % Include "Near Real Time" functionalities here 
 
 if DataTrack - 1 > print200
-   set(DataPlot,'XData',PlotCount:DataTrack - 1,'YData',Data(PlotCount:DataTrack - 1,VarName.AccX1));
+   set(DataPlot,'XData',PlotCount:DataTrack - 1,'YData',Data(PlotCount:DataTrack - 1,VarName.AccX2));
    xticks([]);
    xticklabels({});
    hold on;
