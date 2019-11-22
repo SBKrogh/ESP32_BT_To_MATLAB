@@ -11,7 +11,7 @@ if strcmp(Task.Properties.VariableNames,'IMU')
 end
 %% FSR
 if strcmp(Task.Properties.VariableNames,'FSR')
-    NameOfVariables = {'FSR1', 'FSR2', 'FSR3', 'FSR4', 'FSR5', 'FSR6', 'FSR7', 'FSR8'};
+    NameOfVariables = {'FSR0', 'FSR1', 'FSR2', 'FSR3', 'FSR4', 'FSR5', 'FSR6', 'FSR7'};
     Column = length(NameOfVariables);
 end
 %% EMG

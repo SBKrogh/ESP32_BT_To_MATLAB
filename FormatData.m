@@ -4,15 +4,35 @@ function [FormattedData] = FormatData(TaskName, DataToFormat)
 %% IMU
 % Sample IMU data only [IMU1x, IMU1y, IMU1z, IMU2x, IMU2y, IMU2z]
 if strcmp(TaskName,'IMU')
-    % DataToFormat = reshape(DataToFormat,[4,length(DataToFormat)/4]);
     DataToFormat = uint8(reshape(DataToFormat,[4,length(DataToFormat)/4]));
     FormattedData = zeros(length(DataToFormat),1);
-    for k = 1:length(DataToFormat);
-        % x = uint8([DataToFormat(1,k) DataToFormat(2,k) DataToFormat(3,k) DataToFormat(4,k)]);
+    for k = 1:length(DataToFormat)
         x = [DataToFormat(1,k) DataToFormat(2,k) DataToFormat(3,k) DataToFormat(4,k)];
         FormattedData(k) = typecast(x,'single');
     end
     FormattedData = transpose( reshape(FormattedData,[6, length(FormattedData)/6]) );
+end
+
+%% FSR
+if strcmp(TaskName,'FSR')
+    DataToFormat = uint8(reshape(DataToFormat,[4,length(DataToFormat)/4]));
+    FormattedData = zeros(length(DataToFormat),1);
+    for k = 1:length(DataToFormat)
+        x = [DataToFormat(1,k) DataToFormat(2,k) DataToFormat(3,k) DataToFormat(4,k)];
+        FormattedData(k) = typecast(x,'single');
+    end
+    FormattedData = transpose( reshape(FormattedData,[8, length(FormattedData)/8]) );
+end
+
+%% EMG
+if strcmp(TaskName,'EMG')
+    DataToFormat = uint8(reshape(DataToFormat,[4,length(DataToFormat)/4]));
+    FormattedData = zeros(length(DataToFormat),1);
+    for k = 1:length(DataToFormat)
+        x = [DataToFormat(1,k) DataToFormat(2,k) DataToFormat(3,k) DataToFormat(4,k)];
+        FormattedData(k) = typecast(x,'single');
+    end
+    FormattedData = transpose( reshape(FormattedData,[4, length(FormattedData)/4]) );
 end
 
 %% All
@@ -35,26 +55,6 @@ end
 %     FormattedData = transpose( reshape(FormattedData,[6, length(FormattedData)/6]) );
 % end
 
-%% FSR
-% if strcmp(TaskName,'FSR')
-%     DataToFormat = reshape(DataToFormat,[4,length(DataToFormat)/4]); 
-%     FormattedData = zeros(length(DataToFormat),1);
-%     for k = 1:length(DataToFormat)
-%         x = uint8([DataToFormat(1,k) DataToFormat(2,k) DataToFormat(3,k) DataToFormat(4,k)]);
-%         FormattedData(k) = typecast(x,'single');
-%     end
-%     FormattedData = transpose( reshape(FormattedData,[6, length(FormattedData)/6]) );
-% end
 
-%% EMG
-% if strcmp(TaskName,'EMG')
-%     DataToFormat = reshape(DataToFormat,[4,length(DataToFormat)/4]); 
-%     FormattedData = zeros(length(DataToFormat),1);
-%     for k = 1:length(DataToFormat)
-%         x = uint8([DataToFormat(1,k) DataToFormat(2,k) DataToFormat(3,k) DataToFormat(4,k)]);
-%         FormattedData(k) = typecast(x,'single');
-%     end
-%     FormattedData = transpose( reshape(FormattedData,[6, length(FormattedData)/6]) );
-% end
 
 
