@@ -2,7 +2,7 @@
 function [CleanData] = CleanUpData(Data)
 
 
-[n, m] = size(Data);
+[~, m] = size(Data);
 RowToFind = zeros(1,m);
 LocateFirstZeroRow = find(Data == RowToFind);
 

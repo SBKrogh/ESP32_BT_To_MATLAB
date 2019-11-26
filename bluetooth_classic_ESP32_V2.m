@@ -13,6 +13,7 @@ clc; clear all; close all; delete(instrfind)
 b = EstablishConnectionBT();
 
 %% Define task implmented on ESP32 and its package size
+% Data is received as four uint8_t reinterpreted from float 
 FSR = 32;                           % Bytes
 IMU = 24;                           % Bytes -> Accleration only
 EMG = 16;                           % Bytes
@@ -22,26 +23,27 @@ TaskAvailable = table(FSR,IMU,EMG,All);
 % clear FSR IMU EMG All
 
 %% Specify task - input by user Keyboard
-% prompt = 'Specify task of interest\nFSR, IMU, EMG or All\n';
-% while 1
-%     TaskInput = input(prompt, 's');
-%     if strcmp(TaskInput,'stop')
-%         return
-%     end
-%     if sum(strcmp(TaskInput,TaskAvailable.Properties.VariableNames))
-%         fprintf('Task exists\n')
-%         Task = TaskAvailable(:,TaskInput);
-%         break
-%     else
-%         clc
-%         fprintf('Task: %s, - did not exist - Try again or type "stop" to end program\n\n',TaskInput)
-%     end
-% end
+prompt = 'Specify task of interest\nFSR, IMU, EMG, All or stop\n';
+while 1
+    TaskInput = input(prompt, 's');
+    if strcmp(TaskInput,'stop')
+        fclose(b);
+        return
+    end
+    if sum(strcmp(TaskInput,TaskAvailable.Properties.VariableNames))
+        fprintf('Task exists\n')
+        Task = TaskAvailable(:,TaskInput);
+        break
+    else
+        clc
+        fprintf('Task: %s, - did not exist - Try again or type "stop" to end program\n\n',TaskInput)
+    end
+end
 
 %% Receive and stop BT communication
 clear counter package; % Clear memory if they exists
-TaskInput = 'EMG';             % Erase this when done testing!!!!!!!!
-Task = TaskAvailable(:,'EMG'); % Erase this when done testing!!!!!!!!
+% TaskInput = 'All';             % Erase this when done testing!!!!!!!!
+% Task = TaskAvailable(:,'All'); % Erase this when done testing!!!!!!!!
 
 PackageSize = TaskAvailable.(TaskInput);     % Task package size - bytes
 TestTime = 15*60;                            % Test time in seconds 
@@ -57,7 +59,7 @@ if strcmp(b.Status,'open') % Used to close the BT communication.
     fclose(b);             % Usefull when ESP32 is restarting and
     flushinput(b)          % communication should be re-established.
 end
-flushinput(b)
+flushinput(b)              % Empty BT buffer
 
 ButtonHandle = uicontrol('Style', 'PushButton', ...  % Stop button
     'String', 'Stop loop', ...
@@ -74,15 +76,16 @@ PackagesReceived = PackageSize;                   % Byte received counter
 DataTrack = 1;                                    % Keep track of reinterpreted data stored
 
 FormattedToo = 0;       % How much data is reinterpreted
-avgTime = zeros(500,4);
+avgTime = zeros(500,4); % Used to measure function elaps time 
 k = 1;
 
-print200 = 200;
-time = 0; ydata = 0;
+print200 = 200;                     % Specify plot update speed 
+time = 0; ydata = 0;                % Initial plot data
 DataPlot = plot(time,ydata,'-r');
 PlotCount = 1;
-PlotArray = zeros(1,2000);
-PlotArray2 = PlotArray;
+% PlotArray = zeros(1,2000);
+% PlotArray2 = PlotArray;
+pause(0.5)
 
 while(1)
     tic
@@ -139,7 +142,7 @@ while(1)
         DataTrack = DataTrack + n;                                      % Reinterpreted data pointer
         
         avgTime(k,4) = toc;   
-        %k  = k + 1;
+        k  = k + 1;
     end
     
      
@@ -151,19 +154,21 @@ while(1)
     end
 
     
+   
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-% Include "Near Real Time" functionalities here 
+%%%%%%%%%%%%% Include "Near Real Time" functionalities below %%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% 
 
-if DataTrack - 1 > print200
-   % set(DataPlot,'XData',PlotCount:DataTrack - 1,'YData',Data(PlotCount:DataTrack - 1,VarName.AccX1));
+% Plot example - This is heavy on the computer side and the buffer usage will
+% increase over time..
+if DataTrack - 1 > print200     % Slow down the graph update speed to freq = 1/print200
+   % set(DataPlot,'XData',PlotCount:DataTrack - 1,'YData',Data(PlotCount:DataTrack - 1,VarName.AccX1)); 
    % set(DataPlot,'XData',PlotCount:DataTrack - 1,'YData',Data(PlotCount:DataTrack - 1,VarName.FSR0));
    set(DataPlot,'XData',PlotCount:DataTrack - 1,'YData',Data(PlotCount:DataTrack - 1,VarName.EMG1));
-   
    xticks([]);
    xticklabels({});
    hold on;
    drawnow
-   %PlotCount = DataTrack - 1;
    axis([DataTrack-2000 DataTrack -10 10])
 end
 
@@ -174,18 +179,8 @@ fclose(b);
 %% Clean and store data in TimeTable
 Data = CleanUpData(Data); % Remove zero rows 
 DataTable = getTable(Task,Data);
+RawDataBT = package(1:PackagesReceived);
 
 %% Plot
-
 plot(BufferTest(1:TimeCounter))
 title('Buffer usage over time')
-% figure
-% plot(time1(1:TimeCounter))
-% title('Time used to read buffer')
-
-
-fprintf('Average buffer usage while reading  %i\n',mean(BufferTest(1:TimeCounter)))
-fprintf('Packages received  %i\n',length(package)/24 - 1)
-
-package = package(1:PackagesReceived);
-% save('Dual_IMU_SamePlane_IMU_diff_Movement.mat','package')
