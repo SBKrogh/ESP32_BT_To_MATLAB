@@ -5,6 +5,10 @@ clc; clear all; close all; delete(instrfind)
 %
 % Troubleshooting https://se.mathworks.com/help/instrument/troubleshooting-bluetooth-interface.html
 
+%% Include path 
+addpath(genpath('Functions'));
+addpath(genpath('Data'));
+
 %% Create BT connection to ESP32
 % It might be a good idea to restart matlab if the BT connection has been
 % established before and was not properly disconnected!
@@ -81,11 +85,13 @@ k = 1;
 
 print200 = 200;                     % Specify plot update speed 
 time = 0; ydata = 0;                % Initial plot data
+StopPlot = 0;                       % Used for stopping the plotter 
 DataPlot = plot(time,ydata,'-r');
+
 PlotCount = 1;
+
 % PlotArray = zeros(1,2000);
 % PlotArray2 = PlotArray;
-pause(0.5)
 
 while(1)
     tic
@@ -115,6 +121,7 @@ while(1)
             package(PackagesReceived + 1: PackagesReceived + BufferSize) = fread(b,BufferSize);
         end
         PackagesReceived = PackagesReceived + BufferSize;
+        StopPlot = 1;
         break;
     end
     
@@ -160,11 +167,27 @@ while(1)
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% 
 
 % Plot example - This is heavy on the computer side and the buffer usage will
-% increase over time..
-if DataTrack - 1 > print200     % Slow down the graph update speed to freq = 1/print200
-   % set(DataPlot,'XData',PlotCount:DataTrack - 1,'YData',Data(PlotCount:DataTrack - 1,VarName.AccX1)); 
-   % set(DataPlot,'XData',PlotCount:DataTrack - 1,'YData',Data(PlotCount:DataTrack - 1,VarName.FSR0));
-   set(DataPlot,'XData',PlotCount:DataTrack - 1,'YData',Data(PlotCount:DataTrack - 1,VarName.EMG1));
+% increase over time if used!
+if DataTrack - 1 > print200 && StopPlot == 0   % Slow down the graph update speed to freq = 1/print200
+   
+    if strcmp(Task.Properties.VariableNames,'IMU')
+        set(DataPlot,'XData',PlotCount:DataTrack - 1,'YData',Data(PlotCount:DataTrack - 1,VarName.AccX1)); 
+    end
+   
+    if strcmp(Task.Properties.VariableNames,'FSR')
+        set(DataPlot,'XData',PlotCount:DataTrack - 1,'YData',Data(PlotCount:DataTrack - 1,VarName.FSR0)); 
+    end
+    
+    if strcmp(Task.Properties.VariableNames,'EMG')
+        set(DataPlot,'XData',PlotCount:DataTrack - 1,'YData',Data(PlotCount:DataTrack - 1,VarName.EMG1));
+    end
+    
+    if strcmp(Task.Properties.VariableNames,'All')
+        % set(DataPlot,'XData',PlotCount:DataTrack - 1,'YData',Data(PlotCount:DataTrack - 1,VarName.EMG1));
+        % set(DataPlot,'XData',PlotCount:DataTrack - 1,'YData',Data(PlotCount:DataTrack - 1,VarName.FSR0)); 
+        set(DataPlot,'XData',PlotCount:DataTrack - 1,'YData',Data(PlotCount:DataTrack - 1,VarName.AccX1));
+    end
+   
    xticks([]);
    xticklabels({});
    hold on;

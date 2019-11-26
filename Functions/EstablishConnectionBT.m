@@ -18,7 +18,7 @@ catch me
     b = BruteForceChannelSelectionBT();
 end
 channel = b.Channel;
-save('PreviousChannelSelected.mat', 'channel');
+save('Data/PreviousChannelSelected.mat', 'channel');
 fclose(b);
 b.InputBufferSize = 4096*2;
 fopen(b);
