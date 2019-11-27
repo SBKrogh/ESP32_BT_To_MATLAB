@@ -16,6 +16,9 @@ addpath(genpath('Data'));
 
 b = EstablishConnectionBT();
 
+%% Commands defined on ESP32
+% SendTask(b,'CalibrateFSR'); % Ues this when doing maximum contraction 
+
 %% Define task implmented on ESP32 and its package size
 % Data is received as four uint8_t reinterpreted from float 
 FSR = 32;                           % Bytes
@@ -34,6 +37,7 @@ while 1
         fclose(b);
         return
     end
+    
     if sum(strcmp(TaskInput,TaskAvailable.Properties.VariableNames))
         fprintf('Task exists\n')
         Task = TaskAvailable(:,TaskInput);
