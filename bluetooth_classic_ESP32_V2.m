@@ -188,8 +188,8 @@ if DataTrack - 1 > print200 && StopPlot == 0   % Slow down the graph update spee
     
     if strcmp(Task.Properties.VariableNames,'All')
         % set(DataPlot,'XData',PlotCount:DataTrack - 1,'YData',Data(PlotCount:DataTrack - 1,VarName.EMG1));
-        % set(DataPlot,'XData',PlotCount:DataTrack - 1,'YData',Data(PlotCount:DataTrack - 1,VarName.FSR0)); 
-        set(DataPlot,'XData',PlotCount:DataTrack - 1,'YData',Data(PlotCount:DataTrack - 1,VarName.AccX1));
+         set(DataPlot,'XData',PlotCount:DataTrack - 1,'YData',Data(PlotCount:DataTrack - 1,VarName.FSR0)); 
+        % set(DataPlot,'XData',PlotCount:DataTrack - 1,'YData',Data(PlotCount:DataTrack - 1,VarName.AccX1));
     end
    
    xticks([]);
@@ -197,7 +197,7 @@ if DataTrack - 1 > print200 && StopPlot == 0   % Slow down the graph update spee
    hold on;
    drawnow
    axis([DataTrack-2000 DataTrack -10 10])
-end
+end % plot end
 
 end
 
